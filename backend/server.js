@@ -39,6 +39,11 @@ if (process.env.VERCEL) {
 const absoluteFrontendPath = path.resolve(frontendPath);
 app.use(express.static(absoluteFrontendPath));
 
+// Favicon handler (suppress 404 errors)
+app.get('/favicon.ico', (req, res) => {
+    res.status(204).end();
+});
+
 // Root path handler
 app.get('/', (req, res) => {
     const indexPath = path.join(absoluteFrontendPath, 'index.html');
