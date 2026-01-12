@@ -52,16 +52,27 @@ app.get('/', (req, res) => {
 });
 
 // Connect to MongoDB (only in non-test environment)
+// In serverless environments, reuse existing connection if available
 if (process.env.NODE_ENV !== 'test') {
     const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/healthapp';
-    mongoose.connect(MONGODB_URI, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true
-    }).then(() => {
-        console.log('MongoDB connected successfully');
-    }).catch(err => {
-        console.error('MongoDB connection failed:', err);
-    });
+    
+    // Check if already connected
+    if (mongoose.connection.readyState === 0) {
+        mongoose.connect(MONGODB_URI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+            socketTimeoutMS: 45000,
+        }).then(() => {
+            console.log('MongoDB connected successfully');
+        }).catch(err => {
+            console.error('MongoDB connection failed:', err.message);
+            // Don't crash the app if MongoDB fails - allow it to continue
+            // Routes will handle missing DB gracefully
+        });
+    } else {
+        console.log('MongoDB already connected');
+    }
 }
 
 // Import routes
