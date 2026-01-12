@@ -1,9 +1,42 @@
+# Dependencies
 node_modules/
+package-lock.json
+
+# Environment variables
 .env
-.DS_Store
+.env.local
+.env.*.local
+
+# Logs
 *.log
-coverage/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
 *.swp
 *.swo
 *~
 
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Testing
+coverage/
+.nyc_output/
+
+# Build outputs
+dist/
+build/
+
+# MongoDB data
+data/
+
+# Temporary files
+*.tmp
+.cache/
