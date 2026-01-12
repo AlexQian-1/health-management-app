@@ -3,4 +3,9 @@
 
 const app = require('../backend/server');
 
-module.exports = app;
+// Export as handler function for Vercel
+// Vercel expects a function that receives (req, res)
+module.exports = (req, res) => {
+    // Delegate to Express app
+    return app(req, res);
+};

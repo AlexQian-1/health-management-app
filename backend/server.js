@@ -22,11 +22,19 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Static file serving (enabled for both development and production)
-app.use(express.static(path.join(__dirname, '../frontend')));
+// Handle different path contexts (local vs Vercel)
+const frontendPath = path.join(__dirname, '../frontend');
+app.use(express.static(frontendPath));
 
 // Root path handler
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/index.html'));
+    const indexPath = path.join(frontendPath, 'index.html');
+    res.sendFile(indexPath, (err) => {
+        if (err) {
+            console.error('Error sending index.html:', err);
+            res.status(500).send('Error loading page');
+        }
+    });
 });
 
 // Connect to MongoDB (only in non-test environment)
@@ -96,7 +104,16 @@ app.use('/api/*', (req, res) => {
 app.use((req, res) => {
     // If not an API request, return frontend HTML (supports SPA routing)
     if (!req.path.startsWith('/api')) {
-        res.sendFile(path.join(__dirname, '../frontend/index.html'));
+        const indexPath = path.join(__dirname, '../frontend/index.html');
+        res.sendFile(indexPath, (err) => {
+            if (err) {
+                console.error('Error sending index.html:', err);
+                console.error('Requested path:', req.path);
+                console.error('__dirname:', __dirname);
+                console.error('Resolved path:', indexPath);
+                res.status(500).send('Error loading page');
+            }
+        });
     } else {
         res.status(404).json({ 
             success: false, 
