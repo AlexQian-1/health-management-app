@@ -40,3 +40,6 @@ data/
 # Temporary files
 *.tmp
 .cache/
+
+# Vercel
+.vercel

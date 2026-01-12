@@ -107,8 +107,9 @@ app.use((req, res) => {
     }
 });
 
-// Start server (only in non-test environment)
-if (process.env.NODE_ENV !== 'test') {
+// Start server (only in non-test environment and not on Vercel)
+// Vercel uses serverless functions, so we don't need to listen on a port
+if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
     const server = app.listen(PORT, () => {
         console.log(`Server running on http://localhost:${PORT}`);
     });
