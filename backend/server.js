@@ -23,20 +23,14 @@ app.use(express.urlencoded({ extended: true }));
 
 // Static file serving (enabled for both development and production)
 // Handle different path contexts (local vs Vercel serverless)
-// In Vercel, __dirname points to the serverless function directory
-// We need to resolve paths relative to project root
-let frontendPath;
-if (process.env.VERCEL) {
-    // Vercel serverless: api/index.js -> backend/server.js
-    // __dirname is /var/task/api, need to go up to project root
-    frontendPath = path.join(__dirname, '../../frontend');
-} else {
-    // Local development: backend/server.js
-    frontendPath = path.join(__dirname, '../frontend');
-}
-
-// Use absolute path for static files
+// Use process.cwd() for more reliable path resolution in serverless environments
+const projectRoot = process.cwd();
+const frontendPath = path.join(projectRoot, 'frontend');
 const absoluteFrontendPath = path.resolve(frontendPath);
+
+console.log('Project root:', projectRoot);
+console.log('Frontend path:', absoluteFrontendPath);
+
 app.use(express.static(absoluteFrontendPath));
 
 // Favicon handler (suppress 404 errors)
