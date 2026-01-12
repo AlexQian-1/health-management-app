@@ -22,16 +22,31 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Static file serving (enabled for both development and production)
-// Handle different path contexts (local vs Vercel)
-const frontendPath = path.join(__dirname, '../frontend');
-app.use(express.static(frontendPath));
+// Handle different path contexts (local vs Vercel serverless)
+// In Vercel, __dirname points to the serverless function directory
+// We need to resolve paths relative to project root
+let frontendPath;
+if (process.env.VERCEL) {
+    // Vercel serverless: api/index.js -> backend/server.js
+    // __dirname is /var/task/api, need to go up to project root
+    frontendPath = path.join(__dirname, '../../frontend');
+} else {
+    // Local development: backend/server.js
+    frontendPath = path.join(__dirname, '../frontend');
+}
+
+// Use absolute path for static files
+const absoluteFrontendPath = path.resolve(frontendPath);
+app.use(express.static(absoluteFrontendPath));
 
 // Root path handler
 app.get('/', (req, res) => {
-    const indexPath = path.join(frontendPath, 'index.html');
+    const indexPath = path.join(absoluteFrontendPath, 'index.html');
     res.sendFile(indexPath, (err) => {
         if (err) {
             console.error('Error sending index.html:', err);
+            console.error('Resolved path:', indexPath);
+            console.error('__dirname:', __dirname);
             res.status(500).send('Error loading page');
         }
     });
@@ -104,7 +119,7 @@ app.use('/api/*', (req, res) => {
 app.use((req, res) => {
     // If not an API request, return frontend HTML (supports SPA routing)
     if (!req.path.startsWith('/api')) {
-        const indexPath = path.join(__dirname, '../frontend/index.html');
+        const indexPath = path.join(absoluteFrontendPath, 'index.html');
         res.sendFile(indexPath, (err) => {
             if (err) {
                 console.error('Error sending index.html:', err);
