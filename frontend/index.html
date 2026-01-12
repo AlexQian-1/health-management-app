@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Health Management Application</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <!-- Navigation Bar (hidden by default, shown after login) -->
+    <nav id="main-nav" class="navbar" style="display: none;">
+        <div class="nav-container">
+            <h1 class="nav-logo">Health Management</h1>
+            <button id="menu-toggle" class="menu-toggle" aria-label="Menu">☰</button>
+            <ul id="nav-menu" class="nav-menu">
+                <li class="nav-item"><a href="#" data-view="dashboard" class="nav-link active">Dashboard</a></li>
+                <li class="nav-item"><a href="#" data-view="diet" class="nav-link">Diet Records</a></li>
+                <li class="nav-item"><a href="#" data-view="exercise" class="nav-link">Exercise Records</a></li>
+                <li class="nav-item"><a href="#" data-view="sleep" class="nav-link">Sleep Records</a></li>
+                <li class="nav-item"><a href="#" data-view="weight" class="nav-link">Weight Management</a></li>
+                <li class="nav-item"><a href="#" data-view="goals" class="nav-link">Health Goals</a></li>
+                <li class="nav-item"><a href="#" data-view="statistics" class="nav-link">Statistics</a></li>
+                <li class="nav-item"><a href="#" data-view="profile" class="nav-link">Profile</a></li>
+                <li class="nav-item"><a href="#" data-view="about" class="nav-link">About</a></li>
+                <li class="nav-item"><a href="#" data-view="settings" class="nav-link">Settings</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main id="main-content" class="main-content">
+        <!-- Dashboard View -->
+        <div id="view-dashboard" class="view">
+            <h2 class="view-title">Today's Overview</h2>
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <h3 class="card-title">Today's Calories</h3>
+                    <p class="card-value" id="calories-today">0</p>
+                    <p class="card-unit">kcal</p>
+                </div>
+                <div class="dashboard-card">
+                    <h3 class="card-title">Exercise Duration</h3>
+                    <p class="card-value" id="exercise-today">0</p>
+                    <p class="card-unit">min</p>
+                </div>
+                <div class="dashboard-card">
+                    <h3 class="card-title">Sleep Duration</h3>
+                    <p class="card-value" id="sleep-today">0</p>
+                    <p class="card-unit">hours</p>
+                </div>
+                <div class="dashboard-card">
+                    <h3 class="card-title">Current Weight</h3>
+                    <p class="card-value" id="weight-current">--</p>
+                    <p class="card-unit">kg</p>
+                </div>
+            </div>
+            <div class="recent-activities">
+                <h3 class="section-title">Recent Activities</h3>
+                <ul id="recent-list" class="activity-list"></ul>
+            </div>
+        </div>
+
+        <!-- Diet Records View -->
+        <div id="view-diet" class="view">
+            <h2 class="view-title">Diet Records</h2>
+            <div class="form-container">
+                <form id="diet-form" class="record-form">
+                    <div class="form-group">
+                        <label for="diet-meal" class="form-label">Meal</label>
+                        <select id="diet-meal" class="form-select" required>
+                            <option value="">Please select</option>
+                            <option value="breakfast">Breakfast</option>
+                            <option value="lunch">Lunch</option>
+                            <option value="dinner">Dinner</option>
+                            <option value="snack">Snack</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="diet-food" class="form-label">Food Name</label>
+                        <input type="text" id="diet-food" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="diet-calories" class="form-label">Calories (kcal)</label>
+                        <input type="number" id="diet-calories" class="form-input" min="0" max="10000" step="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="diet-date" class="form-label">Date</label>
+                        <input type="date" id="diet-date" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="diet-time" class="form-label">Time</label>
+                        <input type="time" id="diet-time" class="form-input" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Add Record</button>
+                        <button type="button" class="btn btn-secondary cancel-edit-btn" style="display: none;" data-form="diet-form">Cancel Edit</button>
+                    </div>
+                </form>
+            </div>
+            <div class="records-container">
+                <h3 class="section-title">History</h3>
+                <div class="filter-controls">
+                    <input type="date" id="diet-filter-start" class="filter-input">
+                    <span class="filter-separator">to</span>
+                    <input type="date" id="diet-filter-end" class="filter-input">
+                    <button id="diet-filter-btn" class="btn btn-secondary">Filter</button>
+                    <button id="diet-reset-btn" class="btn btn-secondary">Reset</button>
+                </div>
+                <ul id="diet-list" class="record-list"></ul>
+            </div>
+        </div>
+
+        <!-- Exercise Records View -->
+        <div id="view-exercise" class="view">
+            <h2 class="view-title">Exercise Records</h2>
+            <div class="form-container">
+                <form id="exercise-form" class="record-form">
+                    <div class="form-group">
+                        <label for="exercise-type" class="form-label">Exercise Type</label>
+                        <select id="exercise-type" class="form-select" required>
+                            <option value="">Please select</option>
+                            <option value="running">Running</option>
+                            <option value="walking">Walking</option>
+                            <option value="cycling">Cycling</option>
+                            <option value="swimming">Swimming</option>
+                            <option value="gym">Gym</option>
+                            <option value="yoga">Yoga</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="exercise-duration" class="form-label">Duration (minutes)</label>
+                        <input type="number" id="exercise-duration" class="form-input" min="1" max="1440" step="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="exercise-intensity" class="form-label">Intensity</label>
+                        <select id="exercise-intensity" class="form-select" required>
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="exercise-date" class="form-label">Date</label>
+                        <input type="date" id="exercise-date" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="exercise-time" class="form-label">Time</label>
+                        <input type="time" id="exercise-time" class="form-input" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Add Record</button>
+                        <button type="button" class="btn btn-secondary cancel-edit-btn" style="display: none;" data-form="exercise-form">Cancel Edit</button>
+                    </div>
+                </form>
+            </div>
+            <div class="records-container">
+                <h3 class="section-title">History</h3>
+                <ul id="exercise-list" class="record-list"></ul>
+            </div>
+        </div>
+
+        <!-- Sleep Records View -->
+        <div id="view-sleep" class="view">
+            <h2 class="view-title">Sleep Records</h2>
+            <div class="form-container">
+                <form id="sleep-form" class="record-form">
+                    <div class="form-group">
+                        <label for="sleep-bedtime" class="form-label">Bedtime</label>
+                        <input type="datetime-local" id="sleep-bedtime" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="sleep-waketime" class="form-label">Wake Time</label>
+                        <input type="datetime-local" id="sleep-waketime" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="sleep-quality" class="form-label">Sleep Quality</label>
+                        <select id="sleep-quality" class="form-select" required>
+                            <option value="excellent">Excellent</option>
+                            <option value="good" selected>Good</option>
+                            <option value="fair">Fair</option>
+                            <option value="poor">Poor</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="sleep-notes" class="form-label">Notes</label>
+                        <textarea id="sleep-notes" class="form-textarea" rows="3"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Add Record</button>
+                        <button type="button" class="btn btn-secondary cancel-edit-btn" style="display: none;" data-form="sleep-form">Cancel Edit</button>
+                    </div>
+                </form>
+            </div>
+            <div class="records-container">
+                <h3 class="section-title">History</h3>
+                <ul id="sleep-list" class="record-list"></ul>
+            </div>
+        </div>
+
+        <!-- Weight Management View -->
+        <div id="view-weight" class="view">
+            <h2 class="view-title">Weight Management</h2>
+            <div class="form-container">
+                <form id="weight-form" class="record-form">
+                    <div class="form-group">
+                        <label for="weight-value" class="form-label">Weight (kg)</label>
+                        <input type="number" id="weight-value" class="form-input" step="0.1" min="10" max="500" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="weight-date" class="form-label">Date</label>
+                        <input type="date" id="weight-date" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="weight-time" class="form-label">Time</label>
+                        <input type="time" id="weight-time" class="form-input" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Add Record</button>
+                        <button type="button" class="btn btn-secondary cancel-edit-btn" style="display: none;" data-form="weight-form">Cancel Edit</button>
+                    </div>
+                </form>
+            </div>
+            <div class="records-container">
+                <h3 class="section-title">Weight Trend</h3>
+                <div id="weight-chart" class="chart-container"></div>
+                <ul id="weight-list" class="record-list"></ul>
+            </div>
+        </div>
+
+        <!-- Health Goals View -->
+        <div id="view-goals" class="view">
+            <h2 class="view-title">Health Goals</h2>
+            <div class="form-container">
+                <form id="goal-form" class="record-form">
+                    <div class="form-group">
+                        <label for="goal-type" class="form-label">Goal Type</label>
+                        <select id="goal-type" class="form-select" required>
+                            <option value="">Please select</option>
+                            <option value="weight">Weight</option>
+                            <option value="calories">Calories</option>
+                            <option value="exercise">Exercise</option>
+                            <option value="sleep">Sleep</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="goal-target" class="form-label">Target Value</label>
+                        <input type="number" id="goal-target" class="form-input" min="0.1" step="0.1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="goal-deadline" class="form-label">Deadline</label>
+                        <input type="date" id="goal-deadline" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="goal-description" class="form-label">Description</label>
+                        <textarea id="goal-description" class="form-textarea" rows="3"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Create Goal</button>
+                        <button type="button" class="btn btn-secondary cancel-edit-btn" style="display: none;" data-form="goal-form">Cancel Edit</button>
+                    </div>
+                </form>
+            </div>
+            <div class="records-container">
+                <h3 class="section-title">My Goals</h3>
+                <ul id="goals-list" class="record-list"></ul>
+            </div>
+        </div>
+
+        <!-- Statistics View -->
+        <div id="view-statistics" class="view">
+            <h2 class="view-title">Statistics</h2>
+            <div class="stats-container">
+                <div class="stat-section">
+                    <h3 class="section-title">Time Range</h3>
+                    <div class="filter-controls">
+                        <select id="stats-period" class="form-select">
+                            <option value="week">This Week</option>
+                            <option value="month" selected>This Month</option>
+                            <option value="quarter">This Quarter</option>
+                            <option value="year">This Year</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="stat-section">
+                    <h3 class="section-title">Calories Statistics</h3>
+                    <div id="calories-chart" class="chart-container"></div>
+                </div>
+                <div class="stat-section">
+                    <h3 class="section-title">Exercise Statistics</h3>
+                    <div id="exercise-chart" class="chart-container"></div>
+                </div>
+                <div class="stat-section">
+                    <h3 class="section-title">Sleep Statistics</h3>
+                    <div id="sleep-chart" class="chart-container"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile View -->
+        <div id="view-profile" class="view">
+            <h2 class="view-title">Profile</h2>
+            <div class="form-container">
+                <form id="profile-form" class="record-form">
+                    <div class="form-group">
+                        <label for="profile-name" class="form-label">Name</label>
+                        <input type="text" id="profile-name" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-age" class="form-label">Age</label>
+                        <input type="number" id="profile-age" class="form-input" min="1" max="150" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-gender" class="form-label">Gender</label>
+                        <select id="profile-gender" class="form-select" required>
+                            <option value="">Please select</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-height" class="form-label">Height (cm)</label>
+                        <input type="number" id="profile-height" class="form-input" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-activity" class="form-label">Activity Level</label>
+                        <select id="profile-activity" class="form-select" required>
+                            <option value="sedentary">Sedentary</option>
+                            <option value="light">Light Activity</option>
+                            <option value="moderate" selected>Moderate Activity</option>
+                            <option value="active">Active</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Profile</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- About View -->
+        <div id="view-about" class="view">
+            <h2 class="view-title">About</h2>
+            <div class="about-content">
+                <div class="about-text">
+                    <h3>Personal Health Management Application</h3>
+                    <p>CS602 Final Project - A comprehensive personal health management web application</p>
+                </div>
+                
+                <div class="about-features">
+                    <h3 class="section-title">Features</h3>
+                    <ul>
+                        <li><strong>Dashboard:</strong> Today's health data overview</li>
+                        <li><strong>Diet Records:</strong> Track daily meals and calories</li>
+                        <li><strong>Exercise Records:</strong> Monitor exercise type, duration, and intensity</li>
+                        <li><strong>Sleep Records:</strong> Record sleep time and quality</li>
+                        <li><strong>Weight Management:</strong> Track weight trends</li>
+                        <li><strong>Health Goals:</strong> Set and track health goals</li>
+                        <li><strong>Statistics:</strong> View health data statistics and charts</li>
+                        <li><strong>Profile:</strong> Manage personal information</li>
+                        <li><strong>Settings:</strong> Application settings and data management</li>
+                    </ul>
+                </div>
+
+                <div class="about-tech">
+                    <h3 class="section-title">Technology Stack</h3>
+                    <div class="tech-grid">
+                        <div class="tech-item">
+                            <h4>Frontend</h4>
+                            <ul>
+                                <li>Native HTML/CSS/JavaScript</li>
+                                <li>ES6 Modules</li>
+                                <li>Mobile-first Responsive Design</li>
+                                <li>SPA Architecture</li>
+                            </ul>
+                        </div>
+                        <div class="tech-item">
+                            <h4>Backend</h4>
+                            <ul>
+                                <li>Node.js + Express</li>
+                                <li>MongoDB + Mongoose</li>
+                                <li>RESTful API</li>
+                                <li>Error Handling</li>
+                            </ul>
+                        </div>
+                        <div class="tech-item">
+                            <h4>Testing</h4>
+                            <ul>
+                                <li>Jest Framework</li>
+                                <li>Supertest</li>
+                                <li>API Testing</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="about-info">
+                    <h3 class="section-title">Project Information</h3>
+                    <p>This application is built as a Single Page Application (SPA) with a modern, tech-inspired design. All data is stored locally in MongoDB, and the application provides a comprehensive solution for personal health tracking and management.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings View -->
+        <div id="view-settings" class="view">
+            <h2 class="view-title">Settings</h2>
+            <div class="settings-container">
+                <div class="setting-group">
+                    <h3 class="section-title">Notification Settings</h3>
+                    <div class="setting-item">
+                        <label class="setting-label">
+                            <input type="checkbox" id="notify-goals" class="setting-checkbox" checked>
+                            <span class="setting-text">Goal Reminders</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="setting-group">
+                    <h3 class="section-title">Data Management</h3>
+                    <button id="export-btn" class="btn btn-secondary">Export Data</button>
+                    <button id="clear-btn" class="btn btn-danger">Clear All Data</button>
+                </div>
+                <div class="setting-group">
+                    <h3 class="section-title">Account</h3>
+                    <div id="user-info" class="user-info"></div>
+                    <button id="logout-btn" class="btn btn-danger">Logout</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Login/Register View -->
+        <div id="view-auth" class="view active">
+            <div class="auth-container">
+                <h2 class="view-title">Health Management</h2>
+                <div class="auth-tabs">
+                    <button id="login-tab" class="auth-tab active">Login</button>
+                    <button id="register-tab" class="auth-tab">Register</button>
+                </div>
+                
+                <!-- Login Form -->
+                <div id="login-form-container" class="auth-form-container">
+                    <form id="login-form" class="auth-form">
+                        <div class="form-group">
+                            <label for="login-username" class="form-label">Username or Email</label>
+                            <input type="text" id="login-username" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="login-password" class="form-label">Password</label>
+                            <input type="password" id="login-password" class="form-input" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Login</button>
+                    </form>
+                </div>
+
+                <!-- Register Form -->
+                <div id="register-form-container" class="auth-form-container" style="display: none;">
+                    <form id="register-form" class="auth-form">
+                        <div class="form-group">
+                            <label for="register-username" class="form-label">Username</label>
+                            <input type="text" id="register-username" class="form-input" required minlength="3" maxlength="30">
+                        </div>
+                        <div class="form-group">
+                            <label for="register-email" class="form-label">Email</label>
+                            <input type="email" id="register-email" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-password" class="form-label">Password</label>
+                            <input type="password" id="register-password" class="form-input" required minlength="6">
+                        </div>
+                        <div class="form-group">
+                            <label for="register-password-confirm" class="form-label">Confirm Password</label>
+                            <input type="password" id="register-password-confirm" class="form-input" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Register</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Loading Indicator -->
+    <div id="loading" class="loading hidden">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Loading...</p>
+    </div>
+
+    <!-- Message Notification -->
+    <div id="message" class="message hidden"></div>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
+
